@@ -41,8 +41,8 @@ type typeUserData = {
   phone: string;
   role?: string;
 };
-
-export async function singUp(userData: typeUserData, callback: Function) {
+type Callback = (success: boolean) => void;
+export async function singUp(userData: typeUserData, callback: Callback) {
   const q = query(
     collection(firestore, "users"),
     where("email", "==", userData.email)
@@ -65,7 +65,7 @@ export async function singUp(userData: typeUserData, callback: Function) {
       .then(() => {
         callback(true);
       })
-      .catch((error) => {
+      .catch(() => {
         callback(false);
       });
   }
