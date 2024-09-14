@@ -43,12 +43,12 @@ const authOptions: NextAuthOptions = {
       token,
       user,
     }: {
-      account: Account | null;
+      account?: Account | null;
       token: JWT;
-      user: User;
+      user?: User;
     }) {
       if (account?.provider === "credentials") {
-        token.email = user.email;
+        token.email = user?.email;
       }
       return token;
     },
