@@ -9,7 +9,8 @@ const LoginView = () => {
 
   const { push, query } = useRouter();
 
-  const callbackUrl: any = query.callbackUrl || "/";
+  const callbackUrl: string = (query.callbackUrl as string) || "/";
+
   const handlerRegister = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);

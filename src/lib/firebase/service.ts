@@ -71,14 +71,24 @@ export async function singUp(userData: typeUserData, callback: Callback) {
   }
 }
 
-export async function signIn(email: string) {
-  const q = query(collection(firestore, "users"), where("email", "==", email));
+interface User {
+  id: string;
+  email: string;
+  fullname?: string;
+  password: string;
+  phone?: string;
+  role?: string;
+}
 
+export async function signIn(email: string): Promise<User | null> {
+  const q = query(collection(firestore, "users"), where("email", "==", email));
   const snapshot = await getDocs(q);
+
+  // Map data dari snapshot dan cast ke User
   const data = snapshot.docs.map((doc) => ({
     id: doc.id,
-    ...doc.data(),
-  }));
+    ...doc.data(), // Ini bisa di-cast ke tipe User
+  })) as User[]; // Pastikan hasil di-cast ke array User
 
   if (data.length > 0) {
     return data[0];

@@ -1,8 +1,9 @@
-import { NextAuthOptions } from "next-auth";
+import { Account, NextAuthOptions, Session, User } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { signIn } from "@/lib/firebase/service";
 import { compare } from "bcrypt";
 import NextAuth from "next-auth/next";
+import { JWT } from "next-auth/jwt";
 const authOptions: NextAuthOptions = {
   session: {
     strategy: "jwt",
@@ -23,7 +24,7 @@ const authOptions: NextAuthOptions = {
           password: string;
         };
 
-        const user: any = await signIn(email);
+        const user = await signIn(email);
         if (user) {
           const passwordConfirm = await compare(password, user.password);
           if (passwordConfirm) {
@@ -37,32 +38,26 @@ const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
-    async jwt({ account, token, user, profile }: any) {
+    async jwt({
+      account,
+      token,
+      user,
+    }: {
+      account: Account | null;
+      token: JWT;
+      user: User;
+    }) {
       if (account?.provider === "credentials") {
         token.email = user.email;
-        token.fullname = user.fullname;
-        token.phone = user.phone;
-        token.role = user.role;
-        token.password = user.password;
       }
       return token;
     },
 
-    async session({ session, token }: any) {
-      if ("email" in token) {
-        session.user.email = token.email;
-      }
-      if ("fullname" in token) {
-        session.user.fullname = token.fullname;
-      }
-      if ("password" in token) {
-        session.user.password = token.password;
-      }
-      if ("phone" in token) {
-        session.user.phone = token.phone;
-      }
-      if ("role" in token) {
-        session.user.role = token.role;
+    async session({ session, token }: { session: Session; token: JWT }) {
+      if (session.user) {
+        if ("email" in token) {
+          session.user.email = token.email;
+        }
       }
       return session;
     },
